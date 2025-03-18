@@ -51,7 +51,7 @@ const CommonCheckTable = (props) => {
     } = props;
     const { dataLength } = props;
     const { handleSearchType } = props;
-
+    console.log(allData);
     const textColor = useColorModeValue("secondaryGray.900", "white");
     const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
@@ -65,7 +65,7 @@ const CommonCheckTable = (props) => {
     const searchValue = useSelector((state) => state?.advanceSearchData?.searchValue)
     const getTagValues = useSelector((state) => state?.advanceSearchData?.getTagValues)
     const data = useMemo(() => (AdvanceSearch ? searchDisplay : displaySearchData) ? (AdvanceSearch ? searchedDataOut : searchedData) : allData, [searchDisplay, displaySearchData, AdvanceSearch, searchedDataOut, searchedData, allData]);
-
+    console.log(data);
     const [manageColumnsModel, setManageColumnsModel] = useState(false);
     const [csvColumns, setCsvColumns] = useState([]);
     const [searchbox, setSearchbox] = useState('');
@@ -85,6 +85,7 @@ const CommonCheckTable = (props) => {
         useSortBy,
         usePagination
     );
+    console.log(tableInstance)
 
     const {
         getTableProps,
@@ -476,13 +477,18 @@ const CommonCheckTable = (props) => {
                                     </Tr>
                                 ) : page?.map((row, i) => {
                                     prepareRow(row);
+                                    console.log(data);
+                                    console.log('page', page);
                                     return (
                                         <Tr {...row?.getRowProps()}>
                                             {row?.cells?.map((cell, index) => {
                                                 let data = "";
+                                                console.log(cell);
                                                 columnData?.forEach((item) => {
+                                                    
                                                     if (cell?.column.Header === item.Header) {
                                                         if (item.cell && typeof item.cell === 'function') {
+                                                            console.log(item.cell(cell))
                                                             data = (
                                                                 <Flex Flex align="center" justifyContent={item?.Header === 'Action' && 'center'}>
                                                                     <Text color={textColor} fontSize="sm" fontWeight="700" >
@@ -492,6 +498,7 @@ const CommonCheckTable = (props) => {
                                                             );
                                                         }
                                                         else {
+                                                            console.log(cell);
                                                             data = (
                                                                 <Flex align="center" >
                                                                     {item.Header ===

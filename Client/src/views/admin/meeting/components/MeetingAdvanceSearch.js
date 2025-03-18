@@ -31,21 +31,6 @@ const MeetingAdvanceSearch = (props) => {
         onSubmit: (values, { resetForm }) => {
             dispatch(setSearchValue(values))
             dispatch(getSearchData({ values: values, allData: allData, type: 'Meeting' }))
-            // const searchResult = allData?.filter(
-            //     (item) => {
-            //         const itemDate = new Date(item.dateTime);
-            //         const momentDate = moment(itemDate).format('YYYY-MM-DD');
-            //         const timeItemDate = new Date(item.timestamp);
-            //         const timeMomentDate = moment(timeItemDate).format('YYYY-MM-DD');
-            //         return (
-            //             (!values?.agenda || (item?.agenda && item?.agenda.toLowerCase().includes(values?.agenda?.toLowerCase()))) &&
-            //             (!values?.createBy || (item?.createBy && item?.createBy.toLowerCase().includes(values?.createBy?.toLowerCase()))) &&
-            //             (!values?.startDate || (momentDate >= values.startDate)) &&
-            //             (!values?.endDate || (momentDate <= values.endDate)) &&
-            //             (!values.timeStartDate || (timeMomentDate >= values.timeStartDate)) &&
-            //             (!values.timeEndDate || (timeMomentDate <= values.timeEndDate)))
-            //     }
-            // )
 
             const dateFrom = `${values?.startDate && `From: ${values?.startDate}`}${values?.endDate && ` To: ${values?.endDate}`}`;
             const timeDateFrom = `${values?.timeStartDate && `From: ${values?.timeStartDate}`}${values?.timeEndDate && ` To: ${values?.timeEndDate}`}`

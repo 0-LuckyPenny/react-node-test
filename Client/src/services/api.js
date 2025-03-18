@@ -82,6 +82,7 @@ export const getApi = async (path, id) => {
             return result
         }
         else {
+            console.log(constant.baseUrl + path)
             let result = await axios.get(constant.baseUrl + path, {
                 headers: {
                     Authorization: localStorage.getItem("token") || sessionStorage.getItem("token")

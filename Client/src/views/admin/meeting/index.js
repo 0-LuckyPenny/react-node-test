@@ -17,135 +17,110 @@ import { useDispatch } from 'react-redux';
 
 const Index = () => {
     const title = "Meeting";
-    const navigate = useNavigate()
-    const [action, setAction] = useState(false);
+    const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const dispatch = useDispatch();
+    const user = JSON.parse(localStorage.getItem("user"));
+    const [action, setAction] = useState(false);
     const [selectedValues, setSelectedValues] = useState([]);
     const [advanceSearch, setAdvanceSearch] = useState(false);
-    const [getTagValuesOutSide, setGetTagValuesOutside] = useState([]);
-    const [searchboxOutside, setSearchboxOutside] = useState('');
-    const user = JSON.parse(localStorage.getItem("user"));
-    const [deleteMany, setDeleteMany] = useState(false);
-    const [isLoding, setIsLoding] = useState(false);
     const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [displaySearchData, setDisplaySearchData] = useState(false);
     const [searchedData, setSearchedData] = useState([]);
-    const [permission] = HasAccess(['Meetings'])
-    const dispatch = useDispatch()
-
+    const [permission] = HasAccess(['Meetings']);
+    const [deleteMany, setDeleteMany] = useState(false);
 
     const actionHeader = {
         Header: "Action", isSortable: false, center: true,
         cell: ({ row }) => (
-            <Text fontSize="md" fontWeight="900" textAlign={"center"}>
-                <Menu isLazy  >
+            <Text fontSize="md" fontWeight="900" textAlign="center">
+                <Menu isLazy>
                     <MenuButton><CiMenuKebab /></MenuButton>
-                    <MenuList minW={'fit-content'} transform={"translate(1520px, 173px);"}>
-
-                        {permission?.view && <MenuItem py={2.5} color={'green'}
-                            onClick={() => navigate(`/metting/${row?.values._id}`)}
-                            icon={<ViewIcon fontSize={15} />}>View</MenuItem>}
-                        {permission?.delete && <MenuItem py={2.5} color={'red'} onClick={() => { setDeleteMany(true); setSelectedValues([row?.values?._id]); }} icon={<DeleteIcon fontSize={15} />}>Delete</MenuItem>}
+                    <MenuList minW="fit-content">
+                        {permission?.view && <MenuItem py={2.5} color="green" onClick={() => navigate(`/meeting/${row?.values._id}`)} icon={<ViewIcon fontSize={15} />}>View</MenuItem>}
+                        {permission?.delete && <MenuItem py={2.5} color="red" onClick={() => { setDeleteMany(true); setSelectedValues([row?.values?._id]); }} icon={<DeleteIcon fontSize={15} />}>Delete</MenuItem>}
                     </MenuList>
                 </Menu>
             </Text>
         )
-    }
-    const tableColumns = [
-        {
-            Header: "#",
-            accessor: "_id",
-            isSortable: false,
-            width: 10
-        },
-        {
-            Header: 'Agenda', accessor: 'agenda', cell: (cell) => (
-                <Link to={`/metting/${cell?.row?.values._id}`}> <Text
-                    me="10px"
-                    sx={{ '&:hover': { color: 'blue.500', textDecoration: 'underline' } }}
-                    color='brand.600'
-                    fontSize="sm"
-                    fontWeight="700"
-                >
-                    {cell?.value || ' - '}
-                </Text></Link>)
-        },
-        { Header: "Date & Time", accessor: "dateTime", },
-        { Header: "Time Stamp", accessor: "timestamp", },
-        { Header: "Create By", accessor: "createdByName", },
-        ...(permission?.update || permission?.view || permission?.delete ? [actionHeader] : [])
+    };
 
+    const tableColumns = [
+        { Header: "#", accessor: "_id", isSortable: false, width: 10 },
+        { 
+            Header: 'Agenda', 
+            accessor: 'agenda', 
+            cell: ({ row }) => (
+                <Link to={`/meeting/${row?.values._id}`}>
+                    <Text me="10px" sx={{ '&:hover': { color: 'blue.500', textDecoration: 'underline' } }} color='brand.600' fontSize="sm" fontWeight="700">
+                        {row?.values.agenda || '-'}
+                    </Text>
+                </Link>
+            ) 
+        },
+        { Header: "Date & Time", accessor: "dateTime" },
+        { Header: "Time Stamp", accessor: "timestamp" },
+        { Header: "Create By", accessor: "createdByName" },
+        ...(permission?.update || permission?.view || permission?.delete ? [actionHeader] : [])
     ];
 
     const fetchData = async () => {
-        setIsLoding(true)
-        const result = await dispatch(fetchMeetingData())
-        if (result.payload.status === 200) {
-            setData(result?.payload?.data);
-        } else {
-            toast.error("Failed to fetch data", "error");
-        }
-        setIsLoding(false)
-    }
-
-    const handleDeleteMeeting = async (ids) => {
+        setIsLoading(true);
         try {
-            setIsLoding(true)
-            let response = await deleteManyApi('api/meeting/deleteMany', ids)
-            if (response.status === 200) {
-                setSelectedValues([])
-                setDeleteMany(false)
-                setAction((pre) => !pre)
+            const result = await dispatch(fetchMeetingData());
+            if (result.payload.status === 200) {
+                setData(result?.payload?.data);
+            } else {
+                toast.error("Failed to fetch data");
             }
         } catch (error) {
-            console.log(error)
+            toast.error("Error fetching data");
+        } finally {
+            setIsLoading(false);
         }
-        finally {
-            setIsLoding(false)
+    };
+
+    const handleDeleteMeeting = async (ids) => {
+        setIsLoading(true);
+        try {
+            const response = await deleteManyApi('api/meeting/deleteMany', ids);
+            if (response.status === 200) {
+                setSelectedValues([]);
+                setDeleteMany(false);
+                setAction(prev => !prev);
+            }
+        } catch (error) {
+            toast.error("Error deleting meetings");
+        } finally {
+            setIsLoading(false);
         }
-    }
-
-    // const [selectedColumns, setSelectedColumns] = useState([...tableColumns]);
-    // const dataColumn = tableColumns?.filter(item => selectedColumns?.find(colum => colum?.Header === item.Header))
-
+    };
 
     useEffect(() => {
         fetchData();
-    }, [action])
+    }, [action]);
 
     return (
         <div>
             <CommonCheckTable
                 title={title}
-                isLoding={isLoding}
-                columnData={tableColumns ?? []}
-                // dataColumn={dataColumn ?? []}
-                allData={data ?? []}
+                isLoading={isLoading}
+                columnData={tableColumns}
+                allData={data}
                 tableData={data}
                 searchDisplay={displaySearchData}
                 setSearchDisplay={setDisplaySearchData}
                 searchedDataOut={searchedData}
                 setSearchedDataOut={setSearchedData}
-                tableCustomFields={[]}
                 access={permission}
-                // action={action}
-                // setAction={setAction}
-                // selectedColumns={selectedColumns}
-                // setSelectedColumns={setSelectedColumns}
-                // isOpen={isOpen}
-                // onClose={onClose}
                 onOpen={onOpen}
                 selectedValues={selectedValues}
                 setSelectedValues={setSelectedValues}
                 setDelete={setDeleteMany}
                 AdvanceSearch={
-                    <Button variant="outline" colorScheme='brand' leftIcon={<SearchIcon />} mt={{ sm: "5px", md: "0" }} size="sm" onClick={() => setAdvanceSearch(true)}>Advance Search</Button>
+                    <Button variant="outline" colorScheme="brand" leftIcon={<SearchIcon />} mt={{ sm: "5px", md: "0" }} size="sm" onClick={() => setAdvanceSearch(true)}>Advance Search</Button>
                 }
-                getTagValuesOutSide={getTagValuesOutSide}
-                searchboxOutside={searchboxOutside}
-                setGetTagValuesOutside={setGetTagValuesOutside}
-                setSearchboxOutside={setSearchboxOutside}
-                handleSearchType="MeetingSearch"
             />
 
             <MeetingAdvanceSearch
@@ -153,17 +128,15 @@ const Index = () => {
                 setAdvanceSearch={setAdvanceSearch}
                 setSearchedData={setSearchedData}
                 setDisplaySearchData={setDisplaySearchData}
-                allData={data ?? []}
+                allData={data}
                 setAction={setAction}
-                setGetTagValues={setGetTagValuesOutside}
-                setSearchbox={setSearchboxOutside}
             />
-            <AddMeeting setAction={setAction} isOpen={isOpen} onClose={onClose} />
 
-            {/* Delete model */}
-            <CommonDeleteModel isOpen={deleteMany} onClose={() => setDeleteMany(false)} type='Meetings' handleDeleteData={handleDeleteMeeting} ids={selectedValues} />
+            <AddMeeting setAction={setAction} isOpen={isOpen} onClose={onClose} fetchData={fetchData} />
+
+            <CommonDeleteModel isOpen={deleteMany} onClose={() => setDeleteMany(false)} type="Meetings" handleDeleteData={handleDeleteMeeting} ids={selectedValues} />
         </div>
-    )
-}
+    );
+};
 
-export default Index
+export default Index;

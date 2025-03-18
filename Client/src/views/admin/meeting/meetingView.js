@@ -18,7 +18,7 @@ const MeetingView = (props) => {
     const user = JSON.parse(localStorage.getItem("user"))
     const [isLoding, setIsLoding] = useState(false)
     const navigate = useNavigate()
-
+    
     const fetchViewData = async () => {
         if (info) {
             setIsLoding(true)
@@ -27,6 +27,7 @@ const MeetingView = (props) => {
             setIsLoding(false)
         }
     }
+    console.log(data);
 
     useEffect(() => {
         fetchViewData()

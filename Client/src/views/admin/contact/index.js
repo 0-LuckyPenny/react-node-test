@@ -41,7 +41,6 @@ const Index = () => {
     const [phoneRec, setPhoneRec] = useState({});
 
     const data = useSelector((state) => state?.contactData?.data)
-
     const handleOpenEmail = (id, dataContact) => {
         if (id) {
             setEmailRec(dataContact?.email);
